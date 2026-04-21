@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel — dedeseptian.</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/admin.css">
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════
+       LOGIN SCREEN
+       ═══════════════════════════════════════ -->
+  <div id="login-screen" style="display:flex">
+    <div class="login-box">
+      <div class="login-logo">DEDESEPTIAN.</div>
+      <h2>Control Panel</h2>
+      <p>Masukkan password untuk mengakses admin panel dan mengelola konten website.</p>
+
+      <form id="login-form" onsubmit="return false">
+        <div class="login-field">
+          <input
+            type="password"
+            id="login-pass"
+            placeholder="Password"
+            autocomplete="current-password"
+            autofocus
+          >
+        </div>
+        <div class="login-error" id="login-error"></div>
+        <button type="submit" class="login-submit">Masuk ke Panel</button>
+      </form>
+
+      <a href="../" class="login-back">← Kembali ke Website</a>
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════
+       ADMIN UI (hidden until auth)
+       ═══════════════════════════════════════ -->
+  <div id="admin-ui" style="display:none">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">DEDESEPTIAN.</div>
+        <div class="sidebar-subtitle">Control Panel</div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <a href="#" class="sidebar-link active" data-sec="profile">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/></svg>
+          Profile
+        </a>
+        <a href="#" class="sidebar-link" data-sec="projects">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          Projects
+        </a>
+        <a href="#" class="sidebar-link" data-sec="expertise">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          Expertise
+        </a>
+        <a href="#" class="sidebar-link" data-sec="articles">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+          Articles
+        </a>
+        <a href="#" class="sidebar-link" data-sec="design">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+          Design
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div>
+          <div class="sf-user-name">Dede Septian</div>
+          <div class="sf-user-role">ID Mode</div>
+        </div>
+        <div class="sf-actions">
+          <a href="../" class="sf-link">← Website</a>
+          <button id="logout-btn" class="sf-link danger">Sign Out</button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT AREA -->
+    <main class="admin-main">
+      <div id="admin-content">
+        <!-- Section content rendered by admin.js -->
+      </div>
+    </main>
+
+  </div><!-- /#admin-ui -->
+
+
+  <script src="../js/defaults.js"></script>
+  <script src="../js/admin.js"></script>
+</body>
+</html>
