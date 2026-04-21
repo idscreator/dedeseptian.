@@ -48,7 +48,7 @@ Static personal website for Dede Septian. Fully deployable to **GitHub Pages** �
 
 Access the admin panel at `/admin/` to edit all website content.
 
-**Default password:** `dede2026`
+**Default password:**namatahunrilis`
 
 > ⚠️ **Important:** Change this immediately after first login via the Profile section.
 
