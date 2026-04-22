@@ -50,8 +50,8 @@ Sebuah portofolio profesional tingkat tinggi yang dirancang khusus untuk spesial
 Dashboard Admin dapat diakses melalui: `domain-anda.com/admin/`
 
 **Kredensial Default:**
-- **Username**: `dd2`
-- **Password**: `log!n.dd2#website`
+- **Username**: `***`
+- **Password**: `***`
 
 > [!IMPORTANT]
 > Segera ubah password Anda melalui menu **Profil Admin** di dalam dashboard setelah login pertama kali.
