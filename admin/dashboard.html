@@ -1,0 +1,2250 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Content Manager | dedeseptian</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/main.css">
+    <link rel="stylesheet" href="../assets/css/admin.css">
+    <!-- Quill Rich Text Editor -->
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <style>
+        .ql-editor {
+            min-height: 300px;
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            word-break: break-word;
+            overflow-wrap: break-word;
+        }
+        .ql-toolbar.ql-snow {
+            border-radius: 12px 12px 0 0;
+            border-color: var(--admin-border);
+        }
+        .ql-container.ql-snow {
+            border-radius: 0 0 12px 12px;
+            border-color: var(--admin-border);
+        }
+        
+        /* Tag System Styles */
+        .tag-input-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 8px;
+            border: 1px solid var(--admin-border);
+            border-radius: 12px;
+            background: #fcfcfc;
+        }
+        .tag-pill {
+            background: var(--admin-accent-soft);
+            color: var(--admin-accent);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .tag-remove {
+            cursor: pointer;
+            font-weight: 800;
+            opacity: 0.6;
+        }
+        .tag-remove:hover { opacity: 1; }
+        .tag-input-field {
+            border: none;
+            outline: none;
+            background: transparent;
+            padding: 4px;
+            flex: 1;
+            min-width: 60px;
+            font-size: 0.9rem;
+        }
+
+        /* Modal Preview Sidebar */
+        .modal-inner {
+            max-width: 1200px !important;
+        }
+        .modal-body-wrapper {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 2rem;
+            min-height: 500px;
+        }
+        .form-preview-sidebar {
+            position: sticky;
+            top: 0;
+            background: #f8fafc;
+            padding: 1.5rem;
+            border-right: 1px solid var(--admin-border);
+            margin: -2rem 0 -2rem -2rem; /* Pull back against modal-body padding */
+            border-radius: 20px 0 0 20px;
+        }
+        .preview-sticky {
+            position: sticky;
+            top: 2rem;
+        }
+
+        /* Mockup Card Style (Mirroring Main CSS) */
+        .mockup-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            border: 1px solid #f1f5f9;
+        }
+        .mockup-card-img {
+            width: 100%;
+            height: 160px;
+            background: #f1f3f4;
+            object-fit: cover;
+        }
+        .mockup-card-body {
+            padding: 1.25rem;
+        }
+        .mockup-card-tag {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 100px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+        }
+        .mockup-card-title {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--admin-text);
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .mockup-card-text {
+            font-size: 0.8rem;
+            color: var(--admin-muted);
+            line-height: 1.5;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* Mockup Utilities */
+        /* Table Highlighting */
+        .admin-table th {
+            background: #f8f9fa !important;
+            text-align: left;
+            padding: 0.8rem 2rem !important;
+            font-size: 0.7rem;
+            font-weight: 800 !important;
+            text-transform: uppercase;
+            color: var(--admin-text) !important;
+            border-bottom: 2px solid var(--admin-border) !important;
+            letter-spacing: 0.05em;
+        }
+
+        .admin-table td {
+            padding: 0.9rem 2rem !important;
+            font-size: 0.9rem !important;
+        }
+        
+        .table-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            gap: 1rem;
+            padding: 0 2.5rem;
+        }
+        
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.85rem;
+            color: var(--admin-muted);
+        }
+        
+        .control-select {
+            padding: 6px 12px;
+            border-radius: 8px;
+            border: 1px solid var(--admin-border);
+            background: white;
+            font-family: inherit;
+            font-size: 0.85rem;
+            color: var(--admin-text);
+            cursor: pointer;
+        }
+
+        .filter-badge-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 1.5rem;
+            padding: 0 2.5rem;
+        }
+
+        .filter-badge {
+            background: var(--admin-accent-soft);
+            color: var(--admin-accent);
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid rgba(66, 133, 244, 0.2);
+        }
+
+        .filter-badge span {
+            cursor: pointer;
+            font-size: 1.2rem;
+            line-height: 1;
+            opacity: 0.6;
+        }
+        .filter-badge span:hover { opacity: 1; }
+
+        .mockup-accent-bg { transition: background-color 0.3s ease; }
+        .mockup-accent-color { transition: color 0.3s ease; }
+    </style>
+</head>
+
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <a href="../index.html" class="logo">
+                <span class="logo-dot"></span>
+                dedeseptian<span class="gradient-text">.</span>
+            </a>
+        </div>
+        <ul class="sidebar-nav">
+            <li>
+                <a href="#" class="active" id="nav-works" onclick="switchTab('works')">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                    Etalase Karya
+                </a>
+            </li>
+            <li>
+                <a href="#" id="nav-articles" onclick="switchTab('articles')">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                    Artikel
+                </a>
+            </li>
+            <li style="margin: 1rem 0; border-top: 1px solid var(--admin-border); padding-top: 1rem; opacity: 0.5; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; padding-left: 1.5rem;">Sistem Desain</li>
+            <li>
+                <a href="#" id="nav-branding" onclick="switchTab('branding')">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19l7-7 3 3-7 7-3-3z"></path><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path><path d="M2 2l5 5"></path><circle cx="11" cy="11" r="2"></circle></svg>
+                    Branding & Desain
+                </a>
+            </li>
+            <li class="super-admin-only">
+                <a href="#" id="nav-tentang" onclick="switchTab('tentang')">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                    Manajemen Tentang
+                </a>
+            </li>
+            <li>
+                <a href="#" id="nav-settings" onclick="switchTab('settings')">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
+                    Kategori & Tags
+                </a>
+            </li>
+            <li style="margin: 1rem 0; border-top: 1px solid var(--admin-border); padding-top: 1rem; opacity: 0.5; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; padding-left: 1.5rem;">Akun</li>
+            <li>
+                <a href="#" id="nav-profile-admin" onclick="switchTab('profile-admin')">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                    Profil Saya
+                </a>
+            </li>
+            <li class="super-admin-only">
+                <a href="#" id="nav-users" onclick="switchTab('users')">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                    Manajemen Akun
+                </a>
+            </li>
+        </ul>
+        <div style="margin-top: auto; padding: 2rem; border-top: 1px solid var(--admin-border);">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 1.5rem;">
+                <div id="user-avatar" style="width: 40px; height: 40px; background: var(--admin-accent-soft); color: var(--admin-accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800;">DS</div>
+                <div>
+                    <div id="user-fullname" style="font-size: 0.9rem; font-weight: 700;">Dede Septian</div>
+                    <div id="user-role" style="font-size: 0.75rem; color: var(--admin-muted);">Administrator</div>
+                </div>
+            </div>
+            <button onclick="logout()" class="btn btn-outline" style="width: 100%; margin: 0; font-size: 0.85rem;">Logout</button>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <header style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 3rem;">
+            <div>
+                <h1 id="page-title" style="font-size: 2.5rem; margin-bottom: 0.5rem;">Kelola Karya</h1>
+                <p style="color: var(--admin-muted); font-size: 1.1rem;" id="page-desc">Tampilkan hasil kerja terbaik Anda kepada dunia.</p>
+            </div>
+            <button id="add-content-btn" class="btn btn-primary" onclick="openForm()">+ Tambah Konten</button>
+        </header>
+
+        <!-- Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <span class="stat-label">Total Item</span>
+                <span class="stat-value" id="stat-total">0</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-label">Terpublikasi</span>
+                <span class="stat-value" id="stat-published" style="color: var(--admin-success);">0</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-label">Draft</span>
+                <span class="stat-value" id="stat-draft" style="color: var(--admin-muted);">0</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-label">Menunggu Review</span>
+                <span class="stat-value" id="stat-pending" style="color: #b45309;">0</span>
+            </div>
+            <div class="stat-card" id="stat-extra-card">
+                <span class="stat-label">Kategori</span>
+                <span class="stat-value" id="stat-categories">0</span>
+            </div>
+        </div>
+
+        <!-- Content Table -->
+        <div class="content-card" style="padding: 2.5rem 0;">
+            <div class="table-controls">
+                <div class="control-group">
+                    <span>Tampilkan</span>
+                    <select id="table-limit" class="control-select" onchange="updateTableLimit(this.value)">
+                        <option value="5">5</option>
+                        <option value="10" selected>10</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                        <option value="500">500</option>
+                    </select>
+                    <span>baris</span>
+                </div>
+
+                <div class="control-group" style="gap: 15px;">
+                    <div style="position: relative;">
+                        <input type="text" placeholder="Cari..." class="form-control" style="width: 250px; padding-left: 2.5rem; margin-bottom: 0;" oninput="filterTable(this.value)">
+                        <svg style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--admin-muted);" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                    </div>
+                    
+                    <div style="position: relative;">
+                        <button class="btn btn-outline" style="padding: 8px 16px; font-size: 0.85rem; display: flex; align-items: center; gap: 8px; height: 42px; font-weight: 500;" onclick="toggleFilterDropdown()">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+                            Filter
+                        </button>
+                        
+                        <!-- Filter Dropdown -->
+                        <div id="filter-dropdown" style="display: none; position: absolute; top: 115%; right: 0; width: 280px; background: white; border-radius: 20px; border: 1px solid var(--admin-border); box-shadow: 0 20px 50px rgba(0,0,0,0.15); z-index: 100; padding: 1.5rem;">
+                            <div style="font-weight: 800; font-size: 1rem; margin-bottom: 1.2rem; display: flex; justify-content: space-between; align-items: center; color: var(--admin-text);">
+                                Filter Lanjutan
+                                <span style="color: var(--admin-accent); font-size: 0.75rem; cursor: pointer; font-weight: 700;" onclick="clearFilters()">RESET</span>
+                            </div>
+                            
+                            <div class="form-group" style="margin-bottom: 1rem;">
+                                <label style="font-size: 0.75rem; font-weight: 700; color: var(--admin-muted); text-transform: uppercase;">Status</label>
+                                <select class="control-select" style="width: 100%;" id="filter-status" onchange="applyAdvancedFilter()">
+                                    <option value="">Semua Status</option>
+                                    <option value="published">Published</option>
+                                    <option value="draft">Draft</option>
+                                    <option value="archived">Archived</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group" style="margin-bottom: 1rem;">
+                                <label style="font-size: 0.75rem; font-weight: 700; color: var(--admin-muted); text-transform: uppercase;">Kategori</label>
+                                <select class="control-select" style="width: 100%;" id="filter-category" onchange="applyAdvancedFilter()">
+                                    <option value="">Semua Kategori</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group" style="margin-bottom: 1rem;" id="filter-tag-group">
+                                <label style="font-size: 0.75rem; font-weight: 700; color: var(--admin-muted); text-transform: uppercase;">Tags</label>
+                                <select class="control-select" style="width: 100%;" id="filter-tag" onchange="applyAdvancedFilter()">
+                                    <option value="">Semua Tags</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label style="font-size: 0.75rem; font-weight: 700; color: var(--admin-muted); text-transform: uppercase;">Tahun</label>
+                                <select class="control-select" style="width: 100%;" id="filter-year" onchange="applyAdvancedFilter()">
+                                    <option value="">Semua Tahun</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="active-filters" class="filter-badge-container"></div>
+
+            <table class="admin-table">
+                <thead>
+                    <tr id="table-head">
+                        <!-- Headings dynamic -->
+                    </tr>
+                </thead>
+                <tbody id="table-body">
+                    <!-- Dynamic Rows -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Branding View (Design Editor) -->
+        <div id="branding-view" style="display: none;">
+            <div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 2rem; align-items: start;">
+                <!-- Live Preview Left -->
+                <div style="position: sticky; top: 2rem;">
+                    <div style="margin-bottom: 1rem; display: flex; align-items: center; gap: 8px; color: var(--admin-muted); font-size: 0.85rem; font-weight: 600;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                        LIVE PREVIEW (REAL-TIME)
+                    </div>
+                    <!-- Mini Website Mockup -->
+                    <div id="mini-mockup" style="background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.1); border: 4px solid #334155; transform-origin: top left;">
+                        <!-- Mockup Navbar -->
+                        <div style="padding: 15px 25px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
+                            <div style="font-weight: 800; font-size: 0.9rem;" id="mockup-logo">
+                                <span style="width: 8px; height: 8px; background: #4285F4; border-radius: 50%; display: inline-block; margin-right: 5px;" class="mockup-accent-bg"></span>
+                                dedeseptian<span style="color: #4285F4;" class="mockup-accent-color">.</span>
+                            </div>
+                            <div style="display: flex; gap: 10px;">
+                                <div style="width: 30px; height: 4px; background: #f1f5f9; border-radius: 2px;"></div>
+                                <div style="width: 30px; height: 4px; background: #f1f5f9; border-radius: 2px;"></div>
+                            </div>
+                        </div>
+                        <!-- Mockup Hero -->
+                        <div style="padding: 40px 25px; text-align: left; background: linear-gradient(135deg, #fff 0%, #f8faff 100%);">
+                            <span id="mockup-hero-subtitle" style="padding: 4px 10px; background: #eff6ff; color: #4285F4; border-radius: 100px; font-size: 0.65rem; font-weight: 700; margin-bottom: 10px; display: inline-block;" class="mockup-accent-soft-bg mockup-accent-color">Praktisi EduTech</span>
+                            <h2 id="mockup-hero-title" style="font-size: 1.5rem; margin-bottom: 10px; line-height: 1.2;">Meningkatkan Pembelajaran Melalui Inovasi Digital.</h2>
+                            <p id="mockup-hero-text" style="font-size: 0.75rem; color: #64748b; line-height: 1.5; margin-bottom: 20px; max-width: 80%;">Praktisi Digital Learning yang berkomitmen membangun ekosistem pembelajaran.</p>
+                            <div style="display: flex; gap: 8px;">
+                                <div style="padding: 6px 15px; background: #4285F4; color: white; border-radius: 8px; font-size: 0.65rem; font-weight: 700;" class="mockup-accent-bg">Lihat Karya</div>
+                                <div style="padding: 6px 15px; border: 1px solid #e2e8f0; color: #64748b; border-radius: 8px; font-size: 0.65rem; font-weight: 700;">Diskusi</div>
+                            </div>
+                        </div>
+                        <!-- Mockup CTA -->
+                        <div style="padding: 30px 25px; background: white; border-top: 1px solid #f1f5f9;">
+                            <div style="padding: 30px 20px; background: #f8fafc; border-radius: 16px; text-align: center; border: 1px solid #e2e8f0;">
+                                <h3 id="mockup-cta-title" style="font-size: 1rem; margin-bottom: 8px;">Siap Berkolaborasi?</h3>
+                                <p id="mockup-cta-text" style="font-size: 0.65rem; color: #64748b; margin-bottom: 15px;">Mari diskusikan bagaimana kita bisa membangun ekosistem yang tepat.</p>
+                                <div style="padding: 8px 20px; background: #4285F4; color: white; border-radius: 100px; font-size: 0.65rem; font-weight: 700; display: inline-block;" class="mockup-accent-bg">Hubungi Saya</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 1.5rem; padding: 1rem; background: #fefce8; border: 1px solid #fef08a; border-radius: 12px; font-size: 0.8rem; color: #854d0e;">
+                        <strong>💡 Tips:</strong> Ketik pada kolom di kanan, dan lihat perubahannya langsung pada simulasi tampilan di atas.
+                    </div>
+                </div>
+
+                <!-- Editor Right -->
+                <div class="content-card" style="padding: 2rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                        <h3 style="margin: 0;">Konfigurasi Branding</h3>
+                        <button class="btn btn-primary" onclick="saveBranding()">Simpan Perubahan</button>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Judul Browser (SEO Title)</label>
+                        <input type="text" id="brand-site-title" class="form-control" oninput="updateMockup()">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Nama Branding / Logo (Inisial)</label>
+                        <input type="text" id="brand-hero-logo" class="form-control" maxlength="15" oninput="updateMockup()">
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div class="form-group">
+                            <label>Warna Aksen</label>
+                            <input type="color" id="brand-accent-color" class="form-control" style="height: 45px; padding: 5px;" oninput="updateMockup()">
+                        </div>
+                        <div class="form-group">
+                            <label>Kode HEX</label>
+                            <input type="text" id="brand-accent-text" class="form-control" readonly>
+                        </div>
+                    </div>
+
+                    <hr style="margin: 2rem 0; border: 0; border-top: 1px solid var(--admin-border);">
+
+                    <h4 style="margin-bottom: 1.5rem; color: var(--admin-accent);">Konten Hero (Halaman Utama)</h4>
+                    <div class="form-group">
+                        <label>Sub-Judul (Badge)</label>
+                        <input type="text" id="brand-hero-subtitle" class="form-control" oninput="updateMockup()">
+                    </div>
+                    <div class="form-group">
+                        <label>Judul Utama (H1)</label>
+                        <input type="text" id="brand-hero-title" class="form-control" oninput="updateMockup()">
+                    </div>
+                    <div class="form-group">
+                        <label>Paragraf Deskripsi</label>
+                        <textarea id="brand-hero-text" class="form-control" rows="4" oninput="updateMockup()"></textarea>
+                    </div>
+
+                    <hr style="margin: 2rem 0; border: 0; border-top: 1px solid var(--admin-border);">
+
+                    <h4 style="margin-bottom: 1.5rem; color: var(--admin-accent);">Area Kolaborasi (CTA)</h4>
+                    <div class="form-group">
+                        <label>Judul Ajakan</label>
+                        <input type="text" id="brand-cta-title" class="form-control" oninput="updateMockup()">
+                    </div>
+                    <div class="form-group">
+                        <label>Teks Penjelas</label>
+                        <textarea id="brand-cta-text" class="form-control" rows="3" oninput="updateMockup()"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>SEO Deskripsi</label>
+                        <textarea id="brand-site-desc" class="form-control" rows="2"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings View (Categories & Tags) -->
+        <div id="settings-view" style="display: none;">
+            <div class="form-grid">
+                <!-- Manage Categories -->
+                <div class="content-card" style="padding: 2rem;">
+                    <h3 style="margin-bottom: 1.5rem;">Kelola Kategori</h3>
+                    <div id="category-list" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 1.5rem;">
+                        <!-- Dynamic categories -->
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="text" id="new-category-name" class="form-control" placeholder="Nama kategori baru..." style="margin-bottom: 0;">
+                        <input type="color" id="new-category-color" value="#4285f4" style="width: 50px; height: 45px; border: 1px solid var(--admin-border); border-radius: 8px; cursor: pointer; padding: 5px;">
+                        <button class="btn btn-primary" onclick="addCategoryOption()">Tambah</button>
+                    </div>
+                </div>
+
+                <!-- Manage Tags -->
+                <div class="content-card" style="padding: 2rem;">
+                    <h3 style="margin-bottom: 1.5rem;">Kelola Tags</h3>
+                    <div id="settings-tag-list" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 1.5rem;">
+                        <!-- Dynamic tags -->
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="text" id="new-tag-name" class="form-control" placeholder="Nama tag baru (dengan #)..." style="margin-bottom: 0;">
+                        <input type="color" id="new-tag-color" value="#ea4335" style="width: 50px; height: 45px; border: 1px solid var(--admin-border); border-radius: 8px; cursor: pointer; padding: 5px;">
+                        <button class="btn btn-primary" onclick="addTagOption()">Tambah</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tentang Saya View (Profile Editor) -->
+        <div id="tentang-view" style="display: none;">
+            <div style="display: grid; grid-template-columns: 1fr 1.2fr; gap: 2.5rem; align-items: start;">
+                <!-- Live Preview Left -->
+                <div style="position: sticky; top: 2rem;">
+                    <div style="margin-bottom: 1rem; display: flex; align-items: center; gap: 8px; color: var(--admin-muted); font-size: 0.85rem; font-weight: 600;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                        PREVIEW KARTU TENTANG (REAL-TIME)
+                    </div>
+                    <!-- Mini Profile Mockup (Identical to Main Site 3-Block Layout) -->
+                    <div id="mini-profile-mockup" style="background: #F5F5F7; border-radius: 24px; overflow: hidden; box-shadow: 0 30px 60px rgba(0,0,0,0.12); border: 1px solid #e2e8f0; height: 650px; display: flex; flex-direction: column;">
+                        <!-- Block 0: Header -->
+                        <div id="mock-p-header" style="height: 180px; background: linear-gradient(160deg, #1a1a2e 0%, #2d2d44 100%); position: relative; flex-shrink: 0;">
+                            <div style="position: absolute; bottom: 25px; left: 30px;">
+                                <div style="background: white; color: #1a73e8; font-size: 0.55rem; font-weight: 800; padding: 3px 10px; border-radius: 100px; display: inline-block; margin-bottom: 6px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">TENTANG SAYA</div>
+                                <div id="mock-p-name" style="color: white; font-size: 1.3rem; font-weight: 800; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">Dede Septian</div>
+                            </div>
+                        </div>
+
+                        <!-- Modal Body Container -->
+                        <div style="padding: 30px; flex: 1; overflow-y: auto; background: #F5F5F7;">
+                            
+                            <!-- Block 1: Bio Summary (Full Width) -->
+                            <div id="mock-p-bio-container" style="margin-bottom: 25px; padding-bottom: 20px; border-bottom: 1px solid #e2e8f0;">
+                                <p id="mock-p-bio" style="font-size: 0.85rem; line-height: 1.6; color: #1e293b; font-weight: 500; margin: 0;">
+                                    Bio perkenalan Anda akan muncul di sini...
+                                </p>
+                            </div>
+
+                            <!-- Blocks 2 & 3: Grid -->
+                            <div style="display: grid; grid-template-columns: 100px 1fr; gap: 30px;">
+                                <!-- Block 2: Sidebar (Contact & Skills) -->
+                                <div style="border-right: 1px solid #e2e8f0; padding-right: 15px;">
+                                    <div style="margin-bottom: 15px;">
+                                        <span style="font-size: 0.5rem; font-weight: 800; color: #64748b; display: block; margin-bottom: 6px; letter-spacing: 0.05em;">KONTAK</span>
+                                        <div style="display: flex; gap: 6px;">
+                                            <div style="width: 16px; height: 16px; background: #cbd5e1; border-radius: 4px;"></div>
+                                            <div style="width: 16px; height: 16px; background: #cbd5e1; border-radius: 4px;"></div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div>
+                                        <span style="font-size: 0.5rem; font-weight: 800; color: #64748b; display: block; margin-bottom: 8px; letter-spacing: 0.05em;">KEAHLIAN</span>
+                                        <div id="mock-p-skills" style="display: flex; flex-wrap: wrap; gap: 4px;">
+                                            <!-- Dynamic skills -->
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Block 3: Main Content (Experience & Education) -->
+                                <div>
+                                    <div style="margin-bottom: 20px;">
+                                        <span style="font-size: 0.5rem; font-weight: 800; color: #64748b; display: block; margin-bottom: 10px; letter-spacing: 0.05em;">PENGALAMAN PROFESIONAL</span>
+                                        <div id="mock-p-experience" style="display: flex; flex-direction: column; gap: 12px; border-left: 1.5px solid #1a73e8; padding-left: 12px;">
+                                            <!-- Dynamic experience -->
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <span style="font-size: 0.5rem; font-weight: 800; color: #64748b; display: block; margin-bottom: 10px; letter-spacing: 0.05em;">EDUKASI</span>
+                                        <div id="mock-p-education" style="display: flex; flex-direction: column; gap: 8px;">
+                                            <!-- Dynamic education -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Editor Right -->
+                <div class="content-card" style="padding: 2.5rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                        <h3 style="margin: 0;">Edit Data "Tentang"</h3>
+                        <button class="btn btn-primary" onclick="saveTentang()">Simpan Profil</button>
+                    </div>
+
+                    <!-- Header Section -->
+                    <div class="form-group">
+                        <label>URL Gambar Header (Hero Background)</label>
+                        <input type="text" id="p-header-img" class="form-control" placeholder="https://example.com/image.jpg" oninput="updateTentangMockup()">
+                        <small style="color: var(--admin-muted);">Biarkan kosong untuk menggunakan gradasi default.</small>
+                    </div>
+
+                    <!-- Intro Section -->
+                    <div class="form-group">
+                        <label>Perkenalan Singkat (Bio Utama)</label>
+                        <textarea id="p-bio" class="form-control" rows="4" placeholder="Tuliskan narasi profesional Anda..." oninput="updateTentangMockup()"></textarea>
+                    </div>
+
+                    <hr style="margin: 2.5rem 0; border: 0; border-top: 1px solid var(--admin-border);">
+
+                    <!-- Contact & Socials -->
+                    <h4 style="margin-bottom: 1.5rem; color: var(--admin-accent);">Kontak & Sosial Media</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div class="form-group">
+                            <label>Email Profesional</label>
+                            <input type="email" id="p-email" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>LinkedIn URL</label>
+                            <input type="text" id="p-linkedin" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>Instagram URL</label>
+                            <input type="text" id="p-instagram" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>TikTok URL</label>
+                            <input type="text" id="p-tiktok" class="form-control">
+                        </div>
+                    </div>
+
+                    <hr style="margin: 2.5rem 0; border: 0; border-top: 1px solid var(--admin-border);">
+
+                    <!-- Skills -->
+                    <h4 style="margin-bottom: 1.5rem; color: var(--admin-accent);">Keahlian & Kompetensi</h4>
+                    <div id="p-skills-container" class="tag-input-container" style="margin-bottom: 1rem;">
+                        <!-- Dynamic skill tags -->
+                        <input type="text" id="p-skill-input" class="tag-input-field" placeholder="Tambah keahlian... (Enter)">
+                    </div>
+
+                    <hr style="margin: 2.5rem 0; border: 0; border-top: 1px solid var(--admin-border);">
+
+                    <!-- Professional Experience -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                        <h4 style="margin: 0; color: var(--admin-accent);">Pengalaman Profesional</h4>
+                        <button class="btn btn-outline" style="padding: 5px 12px; font-size: 0.75rem;" onclick="addExperienceRow()">+ Tambah Baris</button>
+                    </div>
+                    <div id="p-experience-list" style="display: flex; flex-direction: column; gap: 20px;">
+                        <!-- Dynamic experience rows -->
+                    </div>
+
+                    <hr style="margin: 2.5rem 0; border: 0; border-top: 1px solid var(--admin-border);">
+
+                    <!-- Education -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                        <h4 style="margin: 0; color: var(--admin-accent);">Pendidikan</h4>
+                        <button class="btn btn-outline" style="padding: 5px 12px; font-size: 0.75rem;" onclick="addEducationRow()">+ Tambah Baris</button>
+                    </div>
+                    <div id="p-education-list" style="display: flex; flex-direction: column; gap: 15px;">
+                        <!-- Dynamic education rows -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin Profile View -->
+        <div id="profile-admin-view" style="display: none;">
+            <div class="content-card" style="padding: 2.5rem; max-width: 600px; margin: 0 auto;">
+                <div style="text-align: center; margin-bottom: 2rem;">
+                    <div id="profile-avatar" style="width: 80px; height: 80px; background: var(--admin-accent-soft); color: var(--admin-accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: 800; margin: 0 auto 1rem;">DS</div>
+                    <h3 style="margin: 0;">Pengaturan Profil</h3>
+                    <p style="color: var(--admin-muted); font-size: 0.9rem;">Perbarui informasi profil dan kredensial Anda.</p>
+                </div>
+                
+                <form id="admin-profile-form">
+                    <div class="form-group">
+                        <label>Nama Lengkap</label>
+                        <input type="text" id="profile-fullname" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Username</label>
+                        <input type="text" id="admin-username" class="form-control" required>
+                    </div>
+                    
+                    <div style="margin: 2rem 0; padding: 1.5rem; background: #fff8eb; border: 1px solid #ffe4b3; border-radius: 12px;">
+                        <h4 style="margin-bottom: 1rem; color: #b45309; font-size: 0.9rem;">Ubah Kata Sandi</h4>
+                        <div class="form-group">
+                            <label>Kata Sandi Baru</label>
+                            <input type="password" id="admin-password" class="form-control" placeholder="Kosongkan jika tidak ingin mengubah">
+                        </div>
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label>Konfirmasi Kata Sandi Baru</label>
+                            <input type="password" id="admin-password-confirm" class="form-control" placeholder="Ulangi kata sandi baru">
+                        </div>
+                    </div>
+
+                    <div id="admin-profile-msg" style="margin-bottom: 1.5rem; font-size: 0.85rem; display: none;"></div>
+                    
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Simpan Perubahan Profil</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Users Management View -->
+        <div id="users-view" style="display: none;">
+            <div class="content-card" style="padding: 2rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                    <h3 style="margin: 0;">Daftar Pengguna Sistem</h3>
+                    <button class="btn btn-primary" onclick="openUserForm()">+ Tambah Pengguna</button>
+                </div>
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Nama Lengkap</th>
+                            <th>Username</th>
+                            <th>Role</th>
+                            <th style="text-align: right;">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="users-table-body">
+                        <!-- Dynamic User Rows -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Professional Content Modal -->
+    <div id="form-modal" class="admin-modal">
+        <div class="modal-inner">
+            <div class="modal-header">
+                <h2 id="modal-title">Tambah Konten Baru</h2>
+                <button onclick="closeForm()" style="background: none; border: none; cursor: pointer; color: var(--admin-muted); font-size: 1.5rem;">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-body-wrapper">
+                    <!-- Left Sidebar Preview -->
+                    <div class="form-preview-sidebar">
+                        <div class="preview-sticky">
+                            <div style="margin-bottom: 1.5rem; font-size: 0.8rem; font-weight: 800; color: var(--admin-muted); text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; gap: 8px;">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                CARD PREVIEW
+                            </div>
+                            
+                            <div class="mockup-card">
+                                <img id="preview-card-img" src="" class="mockup-card-img" style="display: none;">
+                                <div id="preview-card-img-placeholder" style="width: 100%; height: 160px; background: #f1f3f4; display: flex; align-items: center; justify-content: center; color: #cbd5e1;">
+                                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+                                </div>
+                                <div class="mockup-card-body">
+                                    <span id="preview-card-tag" class="mockup-card-tag" style="background: #e2e8f0; color: #64748b;">Kategori</span>
+                                    <h3 id="preview-card-title" class="mockup-card-title">Judul Konten Anda</h3>
+                                    <p id="preview-card-text" class="mockup-card-text">Ringkasan konten akan muncul di sini secara otomatis saat Anda mengetik...</p>
+                                    <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #f1f5f9; font-size: 0.7rem; font-weight: 700; color: #4285F4; display: flex; align-items: center; gap: 4px;">
+                                        Lihat Detail <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div style="margin-top: 2rem; padding: 1rem; background: #eff6ff; border-radius: 12px; border: 1px solid #dbeafe; font-size: 0.75rem; color: #1e40af; line-height: 1.4;">
+                                <strong>💡 UX Note:</strong> Kartu ini adalah representasi bagaimana pengunjung melihat konten Anda di halaman depan.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Form -->
+                    <form id="content-form" style="width: 100%;">
+                        <input type="hidden" id="edit-id">
+                        
+                        <div class="form-grid" style="gap: 2rem;">
+                            <!-- Main Fields -->
+                            <div class="form-left">
+                                <span class="form-section-title">Informasi Utama</span>
+                                <div class="form-group">
+                                    <label for="title">Judul Konten</label>
+                                    <input type="text" id="title" class="form-control" placeholder="Masukkan judul..." required oninput="updateFormCardPreview()">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="slug">URL Slug</label>
+                                    <input type="text" id="slug" class="form-control" placeholder="judul-konten-otomatis">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="summary">Ringkasan Singkat (Excerpt)</label>
+                                    <textarea id="summary" class="form-control" rows="3" placeholder="Gunakan ringkasan yang menarik untuk kartu tampilan..." oninput="updateFormCardPreview()"></textarea>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="content">Isi Konten Lengkap (Microsoft Word Style)</label>
+                                    <div id="editor-container"></div>
+                                    <input type="hidden" id="content">
+                                    <input type="hidden" id="submit-type" value="published">
+                                </div>
+                            </div>
+
+                            <!-- Meta Fields -->
+                            <div class="form-right">
+                                <span class="form-section-title">Pengaturan & SEO</span>
+                                
+                                <div class="form-group" id="status-group">
+                                    <label for="status">Status Publikasi</label>
+                                    <select id="status" class="form-control">
+                                        <option value="published">Terpublikasi</option>
+                                        <option value="pending">Menunggu Review (Baru)</option>
+                                        <option value="revision">Usulan Perubahan (Edit)</option>
+                                        <option value="draft">Draft</option>
+                                        <option value="archived">Diarsipkan</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="category">Kategori</label>
+                                    <select id="category" class="form-control" required onchange="updateFormCardPreview()">
+                                        <option value="">Pilih Kategori...</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="thumbnail">URL Gambar Unggulan (Thumbnail)</label>
+                                    <input type="text" id="thumbnail" class="form-control" placeholder="https://image-url.com/asset.png" oninput="updateFormCardPreview()">
+                                </div>
+
+                                <div id="article-only-fields" style="display: none;">
+                                    <div class="form-group">
+                                        <label>Pilih Tags yang Tersedia</label>
+                                        <div id="available-tags" style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; padding: 10px; background: #f8f9fa; border-radius: 8px;">
+                                            <!-- Dynamic available tags -->
+                                        </div>
+                                        <label>Tags Terpilih</label>
+                                        <div class="tag-input-container" id="tag-container">
+                                            <input type="text" class="tag-input-field" placeholder="Ketik tag baru..." id="tag-input">
+                                        </div>
+                                        <input type="hidden" id="tags">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="metaDescription">Meta Description (SEO)</label>
+                                        <textarea id="metaDescription" class="form-control" rows="3" placeholder="Deskripsi untuk hasil pencarian Google..."></textarea>
+                                    </div>
+                                </div>
+
+                                <div id="work-only-fields" style="display: none;">
+                                    <div class="form-group">
+                                        <label for="releaseDate">Tanggal Rilis Karya</label>
+                                        <input type="date" id="releaseDate" class="form-control">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="client">Nama Klien / Instansi</label>
+                                        <input type="text" id="client" class="form-control" placeholder="Contoh: Google Corp">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div id="modal-author-info" style="display: none; font-size: 0.9rem; color: var(--admin-muted); font-weight: 600; flex: 1; text-align: left;">
+                    Artikel dibuat oleh: <span id="modal-author-name" style="color: var(--admin-text);"></span>
+                </div>
+                <button type="button" class="btn btn-outline" onclick="closeForm()">Batalkan</button>
+                <button type="button" id="modal-draft-btn" class="btn btn-outline" onclick="submitContent('draft')">Simpan Draft</button>
+                <button type="button" id="modal-propose-btn" class="btn btn-primary" onclick="submitContent('pending')">Usulkan</button>
+                <button type="submit" id="modal-save-btn" form="content-form" class="btn btn-primary">Simpan Perubahan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Form Modal -->
+    <div id="user-modal" class="admin-modal">
+        <div class="modal-inner" style="max-width: 500px;">
+            <div class="modal-header">
+                <h2 id="user-modal-title">Tambah Pengguna Baru</h2>
+                <button onclick="closeUserForm()" style="background: none; border: none; cursor: pointer; color: var(--admin-muted); font-size: 1.5rem;">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="user-form">
+                    <input type="hidden" id="user-edit-id">
+                    <div class="form-group">
+                        <label>Nama Lengkap</label>
+                        <input type="text" id="user-modal-fullname" class="form-control" required placeholder="Masukkan nama lengkap...">
+                    </div>
+                    <div class="form-group">
+                        <label>Username</label>
+                        <input type="text" id="user-modal-username" class="form-control" required placeholder="Masukkan username...">
+                    </div>
+                    <div class="form-group">
+                        <label>Role</label>
+                        <select id="user-modal-role" class="form-control" required>
+                            <option value="Pemilik">Pemilik (Akses Penuh)</option>
+                            <option value="Penulis">Penulis (Hanya Artikel)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label id="user-pass-label">Kata Sandi</label>
+                        <input type="password" id="user-modal-password" class="form-control" placeholder="Masukkan kata sandi...">
+                        <small id="user-pass-hint" style="color: var(--admin-muted); display: none;">Kosongkan jika tidak ingin mengubah password.</small>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline" onclick="closeUserForm()">Batalkan</button>
+                <button type="submit" form="user-form" class="btn btn-primary">Simpan Pengguna</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore-compat.js"></script>
+    <script src="../assets/js/firebase-config.js"></script>
+
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+    <script src="../assets/js/storage.js"></script>
+    <script>
+        // Check Auth
+        if (!Storage.isLoggedIn()) {
+            window.location.href = 'index.html';
+        }
+
+        let currentTab = 'works';
+        let allData = [];
+        let tableLimit = 10;
+        let activeFilters = {
+            status: '',
+            category: '',
+            tag: '',
+            year: '',
+            search: ''
+        };
+        let siteSettings = { categories: [], tags: [] };
+        let quill;
+        let currentTags = [];
+
+        // Load Settings
+        async function loadSettings() {
+            siteSettings = await Storage.getSettings();
+            renderCategorySelect();
+            renderAvailableTags();
+            if (currentTab === 'settings') renderSettingsView();
+        }
+
+        function renderCategorySelect() {
+            const select = document.getElementById('category');
+            const currentValue = select.value;
+            select.innerHTML = '<option value="">Pilih Kategori...</option>' + 
+                siteSettings.categories.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
+            select.value = currentValue;
+        }
+
+        function renderAvailableTags() {
+            const container = document.getElementById('available-tags');
+            container.innerHTML = siteSettings.tags.map(tag => `
+                <div class="tag-pill" style="cursor: pointer; background: ${tag.color}20; color: ${tag.color}; border: 1px solid ${tag.color}40;" onclick="toggleTagSelection('${tag.name}')">
+                    ${tag.name}
+                </div>
+            `).join('');
+        }
+
+        function toggleTagSelection(tagName) {
+            if (currentTags.includes(tagName)) {
+                removeTag(tagName);
+            } else {
+                addTag(tagName);
+            }
+        }
+
+        function renderSettingsView() {
+            const catList = document.getElementById('category-list');
+            catList.innerHTML = siteSettings.categories.map((cat, index) => `
+                <div style="display: flex; align-items: center; gap: 10px; background: white; padding: 10px; border-radius: 8px; border: 1px solid var(--admin-border);">
+                    <div style="width: 20px; height: 20px; border-radius: 4px; background: ${cat.color};"></div>
+                    <span style="flex: 1; font-weight: 600;">${cat.name}</span>
+                    <input type="color" value="${cat.color}" onchange="updateCategoryColor(${index}, this.value)" style="border: none; width: 30px; height: 30px; cursor: pointer;">
+                    <button onclick="removeCategoryOption(${index})" style="background: none; border: none; color: var(--admin-danger); cursor: pointer;">&times;</button>
+                </div>
+            `).join('');
+
+            const tagList = document.getElementById('settings-tag-list');
+            tagList.innerHTML = siteSettings.tags.map((tag, index) => `
+                <div style="display: flex; align-items: center; gap: 10px; background: white; padding: 10px; border-radius: 8px; border: 1px solid var(--admin-border);">
+                    <div style="width: 20px; height: 20px; border-radius: 4px; background: ${tag.color};"></div>
+                    <span style="flex: 1; font-weight: 600;">${tag.name}</span>
+                    <input type="color" value="${tag.color}" onchange="updateTagColor(${index}, this.value)" style="border: none; width: 30px; height: 30px; cursor: pointer;">
+                    <button onclick="removeTagOption(${index})" style="background: none; border: none; color: var(--admin-danger); cursor: pointer;">&times;</button>
+                </div>
+            `).join('');
+        }
+
+        // Settings View Rendering
+        function populateBrandingForm() {
+            if (siteSettings.branding) {
+                const b = siteSettings.branding;
+                document.getElementById('brand-site-title').value = b.siteTitle || '';
+                document.getElementById('brand-site-desc').value = b.siteDescription || '';
+                document.getElementById('brand-hero-logo').value = b.heroLogoText || '';
+                document.getElementById('brand-hero-title').value = b.heroTitle || '';
+                document.getElementById('brand-hero-subtitle').value = b.heroSubtitle || '';
+                document.getElementById('brand-hero-text').value = b.heroText || '';
+                document.getElementById('brand-cta-title').value = b.ctaTitle || '';
+                document.getElementById('brand-cta-text').value = b.ctaText || '';
+                document.getElementById('brand-accent-color').value = b.accentColor || '#4285F4';
+                document.getElementById('brand-accent-text').value = b.accentColor || '#4285F4';
+                updateMockup();
+            }
+        }
+
+        function updateMockup() {
+            const color = document.getElementById('brand-accent-color').value;
+            document.getElementById('brand-accent-text').value = color;
+
+            // Apply to mockup
+            document.getElementById('mockup-logo').innerHTML = `<span style="width: 8px; height: 8px; background: ${color}; border-radius: 50%; display: inline-block; margin-right: 5px;"></span>${document.getElementById('brand-hero-logo').value || 'Logo'}<span style="color: ${color};">.</span>`;
+            
+            const subtitle = document.getElementById('mockup-hero-subtitle');
+            subtitle.innerText = document.getElementById('brand-hero-subtitle').value || 'Subtitle';
+            subtitle.style.color = color;
+            subtitle.style.background = color + '15';
+
+            document.getElementById('mockup-hero-title').innerText = document.getElementById('brand-hero-title').value || 'Judul Utama';
+            document.getElementById('mockup-hero-text').innerText = document.getElementById('brand-hero-text').value || 'Deskripsi hero...';
+            
+            document.getElementById('mockup-cta-title').innerText = document.getElementById('brand-cta-title').value || 'Judul CTA';
+            document.getElementById('mockup-cta-text').innerText = document.getElementById('brand-cta-text').value || 'Deskripsi CTA...';
+
+            // Update mockup accent backgrounds
+            const accentElements = document.querySelectorAll('.mockup-accent-bg');
+            accentElements.forEach(el => el.style.backgroundColor = color);
+        }
+
+        async function saveBranding() {
+            const btn = document.querySelector('button[onclick="saveBranding()"]');
+            const originalText = btn.innerText;
+            btn.innerText = 'Menyimpan...';
+            btn.disabled = true;
+
+            try {
+                if (!siteSettings.branding) siteSettings.branding = {};
+                
+                siteSettings.branding.siteTitle = document.getElementById('brand-site-title').value;
+                siteSettings.branding.siteDescription = document.getElementById('brand-site-desc').value;
+                siteSettings.branding.heroLogoText = document.getElementById('brand-hero-logo').value;
+                siteSettings.branding.heroTitle = document.getElementById('brand-hero-title').value;
+                siteSettings.branding.heroSubtitle = document.getElementById('brand-hero-subtitle').value;
+                siteSettings.branding.heroText = document.getElementById('brand-hero-text').value;
+                siteSettings.branding.ctaTitle = document.getElementById('brand-cta-title').value;
+                siteSettings.branding.ctaText = document.getElementById('brand-cta-text').value;
+                siteSettings.branding.accentColor = document.getElementById('brand-accent-color').value;
+
+                await Storage.saveSettings(siteSettings);
+                
+                btn.innerText = 'Berhasil Disimpan!';
+                setTimeout(() => {
+                    btn.innerText = originalText;
+                    btn.disabled = false;
+                }, 2000);
+            } catch (e) {
+                console.error(e);
+                alert('Gagal menyimpan branding.');
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        async function addCategoryOption() {
+            const name = document.getElementById('new-category-name').value.trim();
+            const color = document.getElementById('new-category-color').value;
+            if (name) {
+                siteSettings.categories.push({ name, color });
+                await Storage.saveSettings(siteSettings);
+                document.getElementById('new-category-name').value = '';
+                loadSettings();
+            }
+        }
+
+        async function removeCategoryOption(index) {
+            if (confirm('Hapus kategori ini?')) {
+                siteSettings.categories.splice(index, 1);
+                await Storage.saveSettings(siteSettings);
+                loadSettings();
+            }
+        }
+
+        async function updateCategoryColor(index, color) {
+            siteSettings.categories[index].color = color;
+            await Storage.saveSettings(siteSettings);
+            loadSettings();
+        }
+
+        async function addTagOption() {
+            const name = document.getElementById('new-tag-name').value.trim();
+            const color = document.getElementById('new-tag-color').value;
+            if (name) {
+                siteSettings.tags.push({ name, color });
+                await Storage.saveSettings(siteSettings);
+                document.getElementById('new-tag-name').value = '';
+                loadSettings();
+            }
+        }
+
+        async function removeTagOption(index) {
+            if (confirm('Hapus tag ini?')) {
+                siteSettings.tags.splice(index, 1);
+                await Storage.saveSettings(siteSettings);
+                loadSettings();
+            }
+        }
+
+        async function updateTagColor(index, color) {
+            siteSettings.tags[index].color = color;
+            await Storage.saveSettings(siteSettings);
+            loadSettings();
+        }
+
+        // --- Profile (Tentang Saya) Management ---
+        let currentProfileData = null;
+
+        async function populateTentangForm() {
+            currentProfileData = await Storage.getProfile();
+            
+            document.getElementById('p-header-img').value = currentProfileData.headerImage || '';
+            document.getElementById('p-bio').value = currentProfileData.bio || '';
+            document.getElementById('p-email').value = currentProfileData.socials?.email || '';
+            document.getElementById('p-linkedin').value = currentProfileData.socials?.linkedin || '';
+            document.getElementById('p-instagram').value = currentProfileData.socials?.instagram || '';
+            document.getElementById('p-tiktok').value = currentProfileData.socials?.tiktok || '';
+            
+            renderSkillPills();
+            renderExperienceRows();
+            renderEducationRows();
+            updateTentangMockup();
+        }
+
+        function renderSkillPills() {
+            const container = document.getElementById('p-skills-container');
+            const input = document.getElementById('p-skill-input');
+            const skills = currentProfileData.skills || [];
+            
+            // Remove existing pills
+            container.querySelectorAll('.tag-pill').forEach(p => p.remove());
+            
+            skills.forEach((skill, index) => {
+                const pill = document.createElement('div');
+                pill.className = 'tag-pill';
+                pill.innerHTML = `${skill} <span class="tag-remove" onclick="removeSkill(${index})">&times;</span>`;
+                container.insertBefore(pill, input);
+            });
+        }
+
+        function removeSkill(index) {
+            currentProfileData.skills.splice(index, 1);
+            renderSkillPills();
+            updateTentangMockup();
+        }
+
+        document.getElementById('p-skill-input').onkeydown = (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const val = e.target.value.trim();
+                if (val && !currentProfileData.skills.includes(val)) {
+                    currentProfileData.skills.push(val);
+                    e.target.value = '';
+                    renderSkillPills();
+                    updateTentangMockup();
+                }
+            }
+        };
+
+        function renderExperienceRows() {
+            const list = document.getElementById('p-experience-list');
+            list.innerHTML = (currentProfileData.experience || []).map((exp, index) => `
+                <div class="content-card" style="padding: 1.5rem; background: #f8fafc; position: relative;">
+                    <button onclick="removeExperienceRow(${index})" style="position: absolute; top: 10px; right: 10px; background: none; border: none; color: var(--admin-danger); cursor: pointer; font-weight: 800;">&times; Hapus</button>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                        <input type="text" class="form-control" placeholder="Tahun (e.g. 2022 - Sekarang)" value="${exp.year}" oninput="updateExpData(${index}, 'year', this.value)">
+                        <input type="text" class="form-control" placeholder="Perusahaan" value="${exp.company}" oninput="updateExpData(${index}, 'company', this.value)">
+                    </div>
+                    <input type="text" class="form-control" placeholder="Jabatan/Role" value="${exp.role}" oninput="updateExpData(${index}, 'role', this.value)" style="margin-bottom: 10px;">
+                    <textarea class="form-control" rows="2" placeholder="Deskripsi singkat..." oninput="updateExpData(${index}, 'desc', this.value)">${exp.desc}</textarea>
+                </div>
+            `).join('');
+        }
+
+        function addExperienceRow() {
+            if (!currentProfileData.experience) currentProfileData.experience = [];
+            currentProfileData.experience.unshift({ year: '', company: '', role: '', desc: '' });
+            renderExperienceRows();
+        }
+
+        function removeExperienceRow(index) {
+            currentProfileData.experience.splice(index, 1);
+            renderExperienceRows();
+            updateTentangMockup();
+        }
+
+        function updateExpData(index, field, value) {
+            currentProfileData.experience[index][field] = value;
+            updateTentangMockup();
+        }
+
+        function renderEducationRows() {
+            const list = document.getElementById('p-education-list');
+            list.innerHTML = (currentProfileData.education || []).map((edu, index) => `
+                <div class="content-card" style="padding: 1.5rem; background: #f8fafc; position: relative;">
+                    <button onclick="removeEducationRow(${index})" style="position: absolute; top: 10px; right: 10px; background: none; border: none; color: var(--admin-danger); cursor: pointer; font-weight: 800;">&times; Hapus</button>
+                    <div style="display: grid; grid-template-columns: 80px 1fr 1.2fr; gap: 10px;">
+                        <input type="text" class="form-control" placeholder="Tahun" value="${edu.year}" oninput="updateEduData(${index}, 'year', this.value)">
+                        <input type="text" class="form-control" placeholder="Institusi" value="${edu.school}" oninput="updateEduData(${index}, 'school', this.value)">
+                        <input type="text" class="form-control" placeholder="Gelar/Jurusan" value="${edu.degree}" oninput="updateEduData(${index}, 'degree', this.value)">
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function addEducationRow() {
+            if (!currentProfileData.education) currentProfileData.education = [];
+            currentProfileData.education.unshift({ year: '', school: '', degree: '' });
+            renderEducationRows();
+        }
+
+        function removeEducationRow(index) {
+            currentProfileData.education.splice(index, 1);
+            renderEducationRows();
+            updateTentangMockup();
+        }
+
+        function updateEduData(index, field, value) {
+            currentProfileData.education[index][field] = value;
+            updateTentangMockup();
+        }
+
+        function updateTentangMockup() {
+            if (!currentProfileData) return;
+            
+            const headerImg = document.getElementById('p-header-img').value;
+            const bio = document.getElementById('p-bio').value;
+            const name = (Storage.getCurrentUser()?.fullName || 'User Name');
+            
+            if (headerImg) {
+                document.getElementById('mock-p-header').style.background = `url('${headerImg}') center/cover no-repeat`;
+                document.getElementById('mock-p-header').style.backgroundSize = 'cover';
+                document.getElementById('mock-p-header').style.backgroundPosition = 'center';
+            } else {
+                document.getElementById('mock-p-header').style.background = 'linear-gradient(160deg, #1a1a2e 0%, #2d2d44 100%)';
+            }
+            
+            document.getElementById('mock-p-name').innerText = name;
+            document.getElementById('mock-p-bio').innerText = bio || 'Bio perkenalan Anda akan muncul di sini...';
+            
+            // Skills
+            document.getElementById('mock-p-skills').innerHTML = (currentProfileData.skills || []).map(s => `
+                <span style="font-size: 0.4rem; padding: 1px 4px; background: white; border: 1px solid #e2e8f0; border-radius: 3px;">${s}</span>
+            `).join('');
+            
+            // Experience
+            document.getElementById('mock-p-experience').innerHTML = (currentProfileData.experience || []).slice(0, 2).map(exp => `
+                <div style="position: relative;">
+                    <div style="width: 6px; height: 6px; background: #1a73e8; border-radius: 50%; position: absolute; left: -15.5px; top: 4px; border: 1.5px solid white;"></div>
+                    <div style="font-size: 0.5rem; font-weight: 700; color: #1a73e8;">${exp.year || 'Tahun'}</div>
+                    <div style="font-size: 0.55rem; font-weight: 800;">${exp.role || 'Jabatan'}</div>
+                    <div style="font-size: 0.45rem; color: #64748b;">${exp.company || 'Perusahaan'}</div>
+                </div>
+            `).join('') + (currentProfileData.experience?.length > 2 ? '<div style="font-size: 0.5rem; color: #94a3b8;">+ Lainnya...</div>' : '');
+
+            // Education
+            document.getElementById('mock-p-education').innerHTML = (currentProfileData.education || []).slice(0, 2).map(edu => `
+                <div>
+                    <div style="font-size: 0.5rem; font-weight: 700; color: #1a73e8;">${edu.year || 'Tahun'}</div>
+                    <div style="font-size: 0.55rem; font-weight: 800;">${edu.degree || 'Gelar'}</div>
+                    <div style="font-size: 0.45rem; color: #64748b;">${edu.school || 'Sekolah'}</div>
+                </div>
+            `).join('');
+        }
+
+        async function saveTentang() {
+            const btn = document.querySelector('button[onclick="saveTentang()"]');
+            const originalText = btn.innerText;
+            btn.innerText = 'Menyimpan...';
+            btn.disabled = true;
+
+            try {
+                currentProfileData.headerImage = document.getElementById('p-header-img').value;
+                currentProfileData.bio = document.getElementById('p-bio').value;
+                currentProfileData.socials = {
+                    email: document.getElementById('p-email').value,
+                    linkedin: document.getElementById('p-linkedin').value,
+                    instagram: document.getElementById('p-instagram').value,
+                    tiktok: document.getElementById('p-tiktok').value
+                };
+                
+                await Storage.saveProfile(currentProfileData);
+                
+                btn.innerText = 'Berhasil!';
+                setTimeout(() => {
+                    btn.innerText = originalText;
+                    btn.disabled = false;
+                }, 2000);
+            } catch (e) {
+                console.error(e);
+                alert('Gagal menyimpan profil.');
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        // Initialize Quill
+        function initQuill() {
+            quill = new Quill('#editor-container', {
+                theme: 'snow',
+                modules: {
+                    toolbar: [
+                        [{ 'header': [1, 2, 3, false] }],
+                        ['bold', 'italic', 'underline', 'strike'],
+                        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                        ['link', 'image'],
+                        ['clean']
+                    ]
+                }
+            });
+        }
+
+        // Tag Logic
+        const tagInput = document.getElementById('tag-input');
+        const tagContainer = document.getElementById('tag-container');
+
+        tagInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const tag = tagInput.value.trim();
+                if (tag && !currentTags.includes(tag)) {
+                    addTag(tag);
+                    tagInput.value = '';
+                }
+            }
+        });
+
+        function addTag(tag) {
+            currentTags.push(tag);
+            renderTags();
+        }
+
+        function removeTag(tag) {
+            currentTags = currentTags.filter(t => t !== tag);
+            renderTags();
+        }
+
+        function renderTags() {
+            const pills = currentTags.map(tag => {
+                const tagInfo = siteSettings.tags.find(t => t.name === tag);
+                const color = tagInfo ? tagInfo.color : '#666';
+                return `
+                    <div class="tag-pill" style="background: ${color}15; color: ${color}; border: 1px solid ${color}30;">
+                        ${tag}
+                        <span class="tag-remove" onclick="removeTag('${tag}')" style="color: ${color};">&times;</span>
+                    </div>
+                `;
+            }).join('');
+            
+            // Re-insert input after pills
+            tagContainer.innerHTML = pills;
+            tagContainer.appendChild(tagInput);
+            tagInput.focus();
+        }
+
+        // Tab Switching
+        function switchTab(tab) {
+            currentTab = tab;
+            document.getElementById('nav-works').classList.toggle('active', tab === 'works');
+            document.getElementById('nav-articles').classList.toggle('active', tab === 'articles');
+            document.getElementById('nav-branding').classList.toggle('active', tab === 'branding');
+            document.getElementById('nav-tentang').classList.toggle('active', tab === 'tentang');
+            document.getElementById('nav-settings').classList.toggle('active', tab === 'settings');
+            document.getElementById('nav-profile-admin').classList.toggle('active', tab === 'profile-admin');
+            const navUsers = document.getElementById('nav-users');
+            if (navUsers) navUsers.classList.toggle('active', tab === 'users');
+            
+            const stats = document.querySelector('.stats-grid');
+            const mainContentCard = document.querySelector('.main-content > .content-card');
+            const addButton = document.getElementById('add-content-btn');
+            const brandingView = document.getElementById('branding-view');
+            const tentangView = document.getElementById('tentang-view');
+            const settingsView = document.getElementById('settings-view');
+            const profileAdminView = document.getElementById('profile-admin-view');
+            const usersView = document.getElementById('users-view');
+
+            // Set button text dynamically
+            if (tab === 'works') {
+                addButton.innerText = '+ Tambah Karya Baru';
+            } else if (tab === 'articles') {
+                addButton.innerText = '+ Tulis Artikel Baru';
+            }
+
+            // Role Check for security
+            const currentUser = Storage.getCurrentUser();
+            if (currentUser.role !== 'Pemilik' && currentUser.role !== 'Super Admin' && ['works', 'branding', 'tentang', 'settings', 'users'].includes(tab)) {
+                tab = 'articles'; // Redirect restricted users
+            }
+
+            // Reset views
+            stats.style.display = 'none';
+            mainContentCard.style.display = 'none';
+            addButton.style.display = 'none';
+            brandingView.style.display = 'none';
+            tentangView.style.display = 'none';
+            settingsView.style.display = 'none';
+            profileAdminView.style.display = 'none';
+            if (usersView) usersView.style.display = 'none';
+            
+            if (tab === 'branding') {
+                document.getElementById('page-title').innerText = 'Branding & Desain';
+                document.getElementById('page-desc').innerText = 'Sesuaikan identitas visual dan pesan utama website Anda.';
+                brandingView.style.display = 'block';
+                populateBrandingForm();
+            } else if (tab === 'tentang') {
+                document.getElementById('page-title').innerText = 'Manajemen Tentang';
+                document.getElementById('page-desc').innerText = 'Kelola biografi, keahlian, dan riwayat profesional Anda.';
+                tentangView.style.display = 'block';
+                populateTentangForm();
+            } else if (tab === 'settings') {
+                document.getElementById('page-title').innerText = 'Kategori & Tags';
+                document.getElementById('page-desc').innerText = 'Kelola pengelompokan konten dan label warna.';
+                settingsView.style.display = 'block';
+                renderSettingsView();
+            } else if (tab === 'profile-admin') {
+                document.getElementById('page-title').innerText = 'Profil Saya';
+                document.getElementById('page-desc').innerText = 'Kelola informasi personal dan kredensial Anda.';
+                profileAdminView.style.display = 'block';
+                populateAdminProfileForm();
+            } else if (tab === 'users') {
+                document.getElementById('page-title').innerText = 'Manajemen Akun';
+                document.getElementById('page-desc').innerText = 'Kelola akses dan peran pengguna sistem.';
+                usersView.style.display = 'block';
+                renderUsersTable();
+            } else {
+                // Works or Articles (Monitoring/Dashboard)
+                stats.style.display = 'none'; // Hide stats grid
+                mainContentCard.style.display = 'block';
+                addButton.style.display = 'block';
+                
+                document.getElementById('page-title').innerText = tab === 'works' ? 'Etalase Karya' : 'Artikel';
+                document.getElementById('page-desc').innerText = tab === 'works' 
+                    ? 'Kelola showcase hasil kerja dan proyek profesional Anda.' 
+                    : 'Kelola konten tulisan, wawasan, dan publikasi blog Anda.';
+                
+                renderTable();
+            }
+        }
+
+        // Table Rendering
+        async function renderTable() {
+            const head = document.getElementById('table-head');
+            const body = document.getElementById('table-body');
+
+            // Set dynamic headers
+            if (currentTab === 'works') {
+                head.innerHTML = `
+                    <th style="width: 35%">Konten Karya</th>
+                    <th style="width: 15%">Kategori</th>
+                    <th style="width: 18%">Klien / Instansi</th>
+                    <th style="width: 12%">Status</th>
+                    <th style="width: 10%">Rilis</th>
+                    <th style="width: 10%; text-align: right;">Aksi</th>
+                `;
+            } else {
+                head.innerHTML = `
+                    <th style="width: 35%">Judul Artikel</th>
+                    <th style="width: 15%">Kategori</th>
+                    <th style="width: 18%">Tags</th>
+                    <th style="width: 12%">Status</th>
+                    <th style="width: 10%">Tgl Terbit</th>
+                    <th style="width: 10%; text-align: right;">Aksi</th>
+                `;
+            }
+
+            try {
+                const rawData = currentTab === 'works' ? await Storage.getWorks() : await Storage.getArticles();
+                allData = rawData;
+                
+                // Apply Advanced Filters
+                let filteredData = rawData.filter(item => {
+                    const matchSearch = !activeFilters.search || item.title.toLowerCase().includes(activeFilters.search.toLowerCase());
+                    const matchStatus = !activeFilters.status || item.status === activeFilters.status;
+                    const matchCat = !activeFilters.category || item.category === activeFilters.category;
+                    const matchTag = !activeFilters.tag || (item.tags && item.tags.includes(activeFilters.tag));
+                    
+                    let matchYear = true;
+                    if (activeFilters.year) {
+                        const itemYear = currentTab === 'works' 
+                            ? (item.releaseDate ? new Date(item.releaseDate).getFullYear().toString() : '')
+                            : (item.timestamp ? new Date(item.timestamp).getFullYear().toString() : '');
+                        matchYear = itemYear === activeFilters.year;
+                    }
+                    
+                    return matchSearch && matchStatus && matchCat && matchTag && matchYear;
+                });
+
+                renderFilterBadges();
+                populateFilterOptions(rawData);
+
+                const currentUser = Storage.getCurrentUser();
+                const isPemilik = currentUser.role === 'Pemilik' || currentUser.role === 'Super Admin';
+
+                // Apply Pagination Limit
+                const displayedData = filteredData.slice(0, tableLimit);
+                
+                body.innerHTML = displayedData.map(item => {
+                    const statusClass = `badge-${item.status || 'published'}`;
+                    const statusLabel = item.status === 'revision' ? 'Usulan Perubahan' : (item.status === 'pending' ? 'Menunggu Review' : (item.status || 'published'));
+                    const date = new Date(item.timestamp || Date.now()).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
+                    
+                    const canEdit = isPemilik || (item.authorId === currentUser.id && item.status !== 'pending' && item.status !== 'revision');
+
+                    if (currentTab === 'works') {
+                        return `
+                            <tr>
+                                <td>
+                                    <div style="font-weight: 500; color: var(--admin-text);">${item.title}</div>
+                                </td>
+                                <td><span style="font-size: 0.85rem; color: var(--admin-muted); font-weight: 600;">${item.category}</span></td>
+                                <td><div style="font-size: 0.85rem; font-weight: 500;">${item.client || '-'}</div></td>
+                                <td><span class="badge ${statusClass}">${(item.status || 'published').toUpperCase()}</span></td>
+                                <td style="font-size: 0.85rem; color: var(--admin-muted);">${item.releaseDate ? new Date(item.releaseDate).getFullYear() : '-'}</td>
+                                <td style="text-align: right;">
+                                    ${canEdit ? `
+                                        <button class="btn-action" onclick="openForm('${item.id}')" title="Edit">
+                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4L18.5 2.5z"></path></svg>
+                                        </button>
+                                        <button class="btn-action" onclick="deleteItem('${item.id}')" title="Hapus" style="color: var(--admin-danger);">
+                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                                        </button>
+                                    ` : `
+                                        <button class="btn-action" onclick="openForm('${item.id}', true)" title="Lihat">
+                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                        </button>
+                                    `}
+                                </td>
+                            </tr>
+                        `;
+                    } else {
+                        const tagsList = (item.tags || []).slice(0, 3).map(t => `<span style="font-size: 10px; background: #f1f3f4; color: #5f6368; padding: 2px 8px; border-radius: 4px; margin-right: 4px; border: 1px solid #e0e0e0;">${t}</span>`).join('');
+                        return `
+                            <tr>
+                                <td>
+                                    <div style="font-weight: 500; color: var(--admin-text);">${item.title}</div>
+                                </td>
+                                <td><span style="font-size: 0.85rem; color: var(--admin-muted); font-weight: 600;">${item.category}</span></td>
+                                <td>${tagsList}${item.tags && item.tags.length > 3 ? '...' : ''}</td>
+                                <td><span class="badge ${statusClass}">${(item.status || 'published').toUpperCase()}</span></td>
+                                <td style="font-size: 0.85rem; color: var(--admin-muted);">${date}</td>
+                                <td style="text-align: right;">
+                                    ${canEdit ? `
+                                        <button class="btn-action" onclick="openForm('${item.id}')" title="Edit">
+                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4L18.5 2.5z"></path></svg>
+                                        </button>
+                                        <button class="btn-action" onclick="deleteItem('${item.id}')" title="Hapus" style="color: var(--admin-danger);">
+                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                                        </button>
+                                    ` : `
+                                        <button class="btn-action" onclick="openForm('${item.id}', true)" title="Lihat">
+                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                        </button>
+                                    `}
+                                </td>
+                            </tr>
+                        `;
+                    }
+                }).join('');
+                
+                updateStats(rawData);
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        // Advanced Filter Logic
+        function toggleFilterDropdown() {
+            const dropdown = document.getElementById('filter-dropdown');
+            dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function populateFilterOptions(data) {
+            const catSelect = document.getElementById('filter-category');
+            const tagSelect = document.getElementById('filter-tag');
+            const yearSelect = document.getElementById('filter-year');
+            const tagGroup = document.getElementById('filter-tag-group');
+
+            // Categories
+            const cats = [...new Set(data.map(i => i.category))].sort();
+            catSelect.innerHTML = '<option value="">Semua Kategori</option>' + 
+                cats.map(c => `<option value="${c}" ${activeFilters.category === c ? 'selected' : ''}>${c}</option>`).join('');
+
+            // Tags (Only for articles)
+            if (currentTab === 'articles') {
+                tagGroup.style.display = 'block';
+                const tags = [...new Set(data.flatMap(i => i.tags || []))].sort();
+                tagSelect.innerHTML = '<option value="">Semua Tags</option>' + 
+                    tags.map(t => `<option value="${t}" ${activeFilters.tag === t ? 'selected' : ''}>${t}</option>`).join('');
+            } else {
+                tagGroup.style.display = 'none';
+            }
+
+            // Years
+            const years = [...new Set(data.map(i => {
+                const date = currentTab === 'works' ? i.releaseDate : i.timestamp;
+                return date ? new Date(date).getFullYear().toString() : '';
+            }))].filter(y => y !== '').sort((a,b) => b-a);
+            
+            yearSelect.innerHTML = '<option value="">Semua Tahun</option>' + 
+                years.map(y => `<option value="${y}" ${activeFilters.year === y ? 'selected' : ''}>${y}</option>`).join('');
+        }
+
+        function applyAdvancedFilter() {
+            activeFilters.status = document.getElementById('filter-status').value;
+            activeFilters.category = document.getElementById('filter-category').value;
+            activeFilters.year = document.getElementById('filter-year').value;
+            if (currentTab === 'articles') {
+                activeFilters.tag = document.getElementById('filter-tag').value;
+            } else {
+                activeFilters.tag = '';
+            }
+            renderTable();
+        }
+
+        function clearFilters() {
+            activeFilters = { status: '', category: '', tag: '', year: '', search: activeFilters.search };
+            document.getElementById('filter-status').value = '';
+            document.getElementById('filter-category').value = '';
+            document.getElementById('filter-year').value = '';
+            const tagSelect = document.getElementById('filter-tag');
+            if (tagSelect) tagSelect.value = '';
+            renderTable();
+        }
+
+        function renderFilterBadges() {
+            const container = document.getElementById('active-filters');
+            let html = '';
+            
+            for (const [key, value] of Object.entries(activeFilters)) {
+                if (value && key !== 'search') {
+                    html += `
+                        <div class="filter-badge">
+                            ${key.toUpperCase()}: ${value}
+                            <span onclick="removeSingleFilter('${key}')">&times;</span>
+                        </div>
+                    `;
+                }
+            }
+            container.innerHTML = html;
+        }
+
+        function removeSingleFilter(key) {
+            activeFilters[key] = '';
+            const el = document.getElementById(`filter-${key}`);
+            if (el) el.value = '';
+            renderTable();
+        }
+
+        function updateTableLimit(val) {
+            tableLimit = parseInt(val);
+            renderTable();
+        }
+
+        function filterTable(val) {
+            activeFilters.search = val;
+            renderTable();
+        }
+
+        // Stats Update
+        function updateStats(data) {
+            document.getElementById('stat-total').innerText = data.length;
+            document.getElementById('stat-published').innerText = data.filter(i => i.status === 'published' || !i.status).length;
+            document.getElementById('stat-pending').innerText = data.filter(i => i.status === 'pending' || i.status === 'revision').length;
+            document.getElementById('stat-draft').innerText = data.filter(i => i.status === 'draft').length;
+            
+            const categories = [...new Set(data.map(i => i.category))];
+            document.getElementById('stat-categories').innerText = categories.length;
+        }
+
+        // Form Logic
+        function openForm(id = null, isReadOnly = false) {
+            const modal = document.getElementById('form-modal');
+            const form = document.getElementById('content-form');
+            const title = document.getElementById('modal-title');
+            const editorLabel = document.querySelector('label[for="content"]');
+            const saveBtn = document.getElementById('modal-save-btn');
+            const cancelBtn = document.getElementById('modal-cancel-btn');
+            const draftBtn = document.getElementById('modal-draft-btn');
+            const proposeBtn = document.getElementById('modal-propose-btn');
+            const authorInfo = document.getElementById('modal-author-info');
+            const authorName = document.getElementById('modal-author-name');
+            const currentUser = Storage.getCurrentUser();
+            const role = (currentUser && currentUser.role) ? currentUser.role.toLowerCase().trim() : '';
+            const isPenulis = role === 'penulis' || role === 'content writer';
+            const isPemilik = role === 'pemilik' || role === 'super admin' || role === 'admin';
+            const statusGroup = document.getElementById('status-group');
+            
+            form.reset();
+            document.getElementById('edit-id').value = id || '';
+            document.getElementById('submit-type').value = 'published';
+            
+            // Hide Status for Penulis
+            if (statusGroup) {
+                if (isPenulis) {
+                    statusGroup.setAttribute('style', 'display: none !important');
+                } else {
+                    statusGroup.style.display = 'block';
+                }
+            }
+            
+            // Dynamic Labels
+            if (currentTab === 'works') {
+                title.innerText = isReadOnly ? 'Detail Karya' : (id ? 'Edit Karya' : 'Tambah Karya Baru');
+                if (editorLabel) editorLabel.innerText = 'Studi Kasus / Deskripsi Karya';
+                document.getElementById('article-only-fields').style.display = 'none';
+                document.getElementById('work-only-fields').style.display = 'block';
+            } else {
+                title.innerText = isReadOnly ? 'Detail Artikel' : (id ? 'Edit Artikel' : 'Tulis Artikel Baru');
+                if (editorLabel) editorLabel.innerText = 'Isi Artikel Lengkap';
+                document.getElementById('article-only-fields').style.display = 'block';
+                document.getElementById('work-only-fields').style.display = 'none';
+            }
+
+            // Button & Access Control based on Role
+            if (isReadOnly) {
+                if (saveBtn) saveBtn.style.display = 'none';
+                if (draftBtn) draftBtn.style.display = 'none';
+                if (proposeBtn) proposeBtn.style.display = 'none';
+                authorInfo.style.display = 'block';
+            } else {
+                authorInfo.style.display = 'none';
+                if (isPenulis) {
+                    if (saveBtn) saveBtn.style.display = 'none';
+                    if (draftBtn) draftBtn.style.display = 'block';
+                    if (proposeBtn) {
+                        proposeBtn.style.display = 'block';
+                        // Check if we are editing a published item
+                        const item = id ? allData.find(i => i.id === id) : null;
+                        if (item && item.status === 'published') {
+                            proposeBtn.innerText = 'Usulkan Perubahan';
+                        } else {
+                            proposeBtn.innerText = 'Usulkan Artikel';
+                        }
+                    }
+                } else {
+                    const item = id ? allData.find(i => i.id === id) : null;
+                    if (saveBtn) {
+                        saveBtn.style.display = 'block';
+                        if (item && item.status === 'revision') {
+                            saveBtn.innerText = 'Setujui Perubahan';
+                            saveBtn.className = 'btn btn-primary'; // Greenish? No, keep primary
+                        } else {
+                            saveBtn.innerText = id ? 'Simpan Perubahan' : 'Terbitkan Konten';
+                        }
+                    }
+                    if (draftBtn) draftBtn.style.display = 'none';
+                    if (proposeBtn) proposeBtn.style.display = 'none';
+                }
+            }
+
+            quill.enable(!isReadOnly);
+            const inputs = form.querySelectorAll('input, select, textarea');
+            inputs.forEach(input => {
+                if (input.id !== 'edit-id') input.disabled = isReadOnly;
+            });
+            
+            if (id) {
+                const item = allData.find(i => i.id === id);
+                if (authorName) authorName.innerText = (item && item.author) ? item.author : '-';
+                
+                // If it's a revision, load proposed data for Pemilik review
+                const dataToLoad = (item && item.status === 'revision' && item.proposedData) ? item.proposedData : (item || {});
+                
+                document.getElementById('title').value = dataToLoad.title || '';
+                document.getElementById('slug').value = dataToLoad.slug || '';
+                document.getElementById('category').value = dataToLoad.category || '';
+                document.getElementById('summary').value = dataToLoad.summary || '';
+                document.getElementById('status').value = item ? item.status : 'published';
+                document.getElementById('thumbnail').value = dataToLoad.thumbnail || '';
+                quill.root.innerHTML = dataToLoad.content || '';
+                
+                if (currentTab === 'articles') {
+                    currentTags = dataToLoad.tags || [];
+                    renderTags();
+                    document.getElementById('metaDescription').value = dataToLoad.metaDescription || '';
+                } else {
+                    document.getElementById('client').value = dataToLoad.client || '';
+                    document.getElementById('releaseDate').value = dataToLoad.releaseDate || '';
+                }
+            } else {
+                if (currentTab === 'articles') {
+                    currentTags = [];
+                    renderTags();
+                }
+            }
+            
+            updateFormCardPreview();
+            modal.style.display = 'flex';
+        }
+
+        function updateFormCardPreview() {
+            const title = document.getElementById('title').value || 'Judul Konten Anda';
+            const summary = document.getElementById('summary').value || 'Ringkasan konten akan muncul di sini secara otomatis saat Anda mengetik...';
+            const category = document.getElementById('category').value || 'Kategori';
+            const thumbUrl = document.getElementById('thumbnail').value;
+            
+            // Update Text
+            document.getElementById('preview-card-title').innerText = title;
+            document.getElementById('preview-card-text').innerText = summary;
+            
+            // Update Category Pill
+            const catTag = document.getElementById('preview-card-tag');
+            catTag.innerText = category;
+            const catInfo = siteSettings.categories.find(c => c.name === category);
+            if (catInfo) {
+                catTag.style.background = catInfo.color + '20';
+                catTag.style.color = catInfo.color;
+            } else {
+                catTag.style.background = '#e2e8f0';
+                catTag.style.color = '#64748b';
+            }
+
+            // Update Image
+            const img = document.getElementById('preview-card-img');
+            const placeholder = document.getElementById('preview-card-img-placeholder');
+            if (thumbUrl) {
+                img.src = thumbUrl;
+                img.style.display = 'block';
+                placeholder.style.display = 'none';
+            } else {
+                img.style.display = 'none';
+                placeholder.style.display = 'flex';
+            }
+        }
+
+        function closeForm() {
+            document.getElementById('form-modal').style.display = 'none';
+        }
+
+        function editItem(id) {
+            openForm(id);
+        }
+
+        // Auto-slug generator
+        document.getElementById('title').addEventListener('input', function() {
+            if (!document.getElementById('edit-id').value) {
+                const slug = this.value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+                document.getElementById('slug').value = slug;
+            }
+        });
+
+        function submitContent(type) {
+            document.getElementById('submit-type').value = type;
+            document.getElementById('content-form').dispatchEvent(new Event('submit'));
+        }
+
+        // Form Submit
+        document.getElementById('content-form').onsubmit = async (e) => {
+            if (e) e.preventDefault();
+            const currentUser = Storage.getCurrentUser();
+            const role = (currentUser && currentUser.role) ? currentUser.role.toLowerCase().trim() : '';
+            const isPenulis = role === 'penulis' || role === 'content writer';
+            const isPemilik = role === 'pemilik' || role === 'super admin' || role === 'admin' || !isPenulis;
+            
+            const id = document.getElementById('edit-id').value || 'ds_' + Date.now();
+            const submitType = document.getElementById('submit-type').value;
+            
+            // If editing, find existing item to preserve author info
+            let existingItem = null;
+            if (document.getElementById('edit-id').value) {
+                existingItem = allData.find(i => i.id === id);
+            }
+
+            let statusValue = document.getElementById('status').value;
+            if (isPenulis) {
+                statusValue = submitType; // draft or pending
+            }
+
+            // REVISION LOGIC: If a Penulis is editing a Published item, save as revision proposal
+            const isProposingRevision = isPenulis && existingItem && existingItem.status === 'published' && submitType === 'pending';
+            
+            // APPROVAL LOGIC: If Pemilik is saving a Revision item, merge proposed data
+            const isApprovingRevision = isPemilik && existingItem && existingItem.status === 'revision';
+
+            const commonData = {
+                id: id || 'ds_' + Date.now(),
+                title: document.getElementById('title').value || '',
+                slug: document.getElementById('slug').value || '',
+                category: document.getElementById('category').value || '',
+                summary: document.getElementById('summary').value || '',
+                content: quill ? quill.root.innerHTML : '',
+                status: isProposingRevision ? 'revision' : (isApprovingRevision ? 'published' : (statusValue || 'draft')),
+                thumbnail: document.getElementById('thumbnail').value || '',
+                date: (existingItem && existingItem.date) ? existingItem.date : new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }),
+                timestamp: (existingItem && existingItem.timestamp) ? existingItem.timestamp : Date.now(),
+                author: (existingItem && existingItem.author) ? existingItem.author : (currentUser ? currentUser.fullName : 'System'),
+                authorId: (existingItem && existingItem.authorId) ? existingItem.authorId : (currentUser ? currentUser.id : 'admin')
+            };
+
+            // If proposing revision, keep old data in main fields and store new in proposedData
+            if (isProposingRevision) {
+                commonData.title = existingItem.title;
+                commonData.content = existingItem.content;
+                commonData.summary = existingItem.summary;
+                commonData.slug = existingItem.slug;
+                commonData.thumbnail = existingItem.thumbnail;
+                commonData.category = existingItem.category;
+                
+                commonData.proposedData = {
+                    title: document.getElementById('title').value || '',
+                    content: quill ? quill.root.innerHTML : '',
+                    summary: document.getElementById('summary').value || '',
+                    slug: document.getElementById('slug').value || '',
+                    category: document.getElementById('category').value || '',
+                    thumbnail: document.getElementById('thumbnail').value || '',
+                    tags: currentTags || [],
+                    metaDescription: (document.getElementById('metaDescription') ? document.getElementById('metaDescription').value : '') || ''
+                };
+            }
+            
+            // Clear proposed data after approval
+            if (isApprovingRevision) {
+                commonData.proposedData = null;
+            }
+
+            let finalItem;
+            if (currentTab === 'articles') {
+                finalItem = {
+                    ...commonData,
+                    tags: currentTags || [],
+                    metaDescription: (document.getElementById('metaDescription') ? document.getElementById('metaDescription').value : '') || ''
+                };
+            } else {
+                finalItem = {
+                    ...commonData,
+                    client: (document.getElementById('client') ? document.getElementById('client').value : '') || '',
+                    releaseDate: (document.getElementById('releaseDate') ? document.getElementById('releaseDate').value : '') || ''
+                };
+            }
+
+            let data = currentTab === 'works' ? await Storage.getWorks() : await Storage.getArticles();
+            const index = data.findIndex(i => i.id === id);
+            
+            if (index > -1) {
+                data[index] = finalItem;
+            } else {
+                data.unshift(finalItem); // Add to top
+            }
+
+            try {
+                if (currentTab === 'works') await Storage.saveWorks(data);
+                else await Storage.saveArticles(data);
+
+                closeForm();
+                renderTable();
+                alert('Berhasil! Konten Anda telah ' + (submitType === 'pending' ? 'diusulkan untuk direview.' : 'disimpan sebagai ' + (submitType || 'konten') + '.'));
+            } catch (error) {
+                console.error("Gagal menyimpan data:", error);
+                alert("Gagal menyimpan data. Pastikan Aturan (Rules) Firebase Firestore Anda mengizinkan proses 'write' (biasanya harus diatur ke Test Mode atau true). Detail error: " + error.message);
+            }
+        };
+
+        async function deleteItem(id) {
+            if (confirm('Apakah Anda yakin ingin menghapus konten ini? Tindakan ini tidak dapat dibatalkan.')) {
+                let data = currentTab === 'works' ? await Storage.getWorks() : await Storage.getArticles();
+                data = data.filter(i => i.id !== id);
+                if (currentTab === 'works') await Storage.saveWorks(data);
+                else await Storage.saveArticles(data);
+                renderTable();
+            }
+        }
+
+        // Admin Profile Logic
+        async function populateAdminProfileForm() {
+            const user = Storage.getCurrentUser();
+            document.getElementById('profile-fullname').value = user.fullName || '';
+            document.getElementById('admin-username').value = user.username;
+            document.getElementById('admin-password').value = '';
+            document.getElementById('admin-password-confirm').value = '';
+            const msg = document.getElementById('admin-profile-msg');
+            msg.style.display = 'none';
+
+            // Update Avatar Initial
+            const initial = (user.fullName || user.username).charAt(0).toUpperCase();
+            document.getElementById('profile-avatar').innerText = initial;
+        }
+
+        document.getElementById('admin-profile-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const fullName = document.getElementById('profile-fullname').value;
+            const username = document.getElementById('admin-username').value;
+            const newPass = document.getElementById('admin-password').value;
+            const confirmPass = document.getElementById('admin-password-confirm').value;
+            const msg = document.getElementById('admin-profile-msg');
+
+            if (newPass && newPass !== confirmPass) {
+                msg.innerText = '❌ Kata sandi baru tidak cocok!';
+                msg.style.color = 'var(--admin-danger)';
+                msg.style.display = 'block';
+                return;
+            }
+
+            const btn = e.target.querySelector('button');
+            const originalText = btn.innerText;
+            btn.innerText = 'Menyimpan...';
+            btn.disabled = true;
+
+            try {
+                const currentUser = Storage.getCurrentUser();
+                const authData = await Storage.getAdminAuth();
+                const users = authData.users;
+                const userIndex = users.findIndex(u => u.id === currentUser.id);
+
+                if (userIndex > -1) {
+                    users[userIndex].fullName = fullName;
+                    users[userIndex].username = username;
+                    
+                    if (newPass) {
+                        const msgUint8 = new TextEncoder().encode(newPass);
+                        const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
+                        const hashArray = Array.from(new Uint8Array(hashBuffer));
+                        const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+                        users[userIndex].passwordHash = hashHex;
+                    }
+
+                    await Storage.saveAdminAuth({ users: users });
+                    
+                    // Update LocalStorage
+                    currentUser.fullName = fullName;
+                    currentUser.username = username;
+                    localStorage.setItem('ds_admin_user', JSON.stringify(currentUser));
+                    
+                    updateSidebarUserInfo();
+                    
+                    msg.innerText = '✅ Profil berhasil diperbarui!';
+                    msg.style.color = 'var(--admin-success)';
+                    msg.style.display = 'block';
+                }
+                
+                document.getElementById('admin-password').value = '';
+                document.getElementById('admin-password-confirm').value = '';
+            } catch (error) {
+                console.error(error);
+                msg.innerText = '❌ Gagal memperbarui profil.';
+                msg.style.color = 'var(--admin-danger)';
+                msg.style.display = 'block';
+            } finally {
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
+        };
+
+        // User Management Logic
+        async function renderUsersTable() {
+            const authData = await Storage.getAdminAuth();
+            const users = authData.users || [];
+            const body = document.getElementById('users-table-body');
+            
+            body.innerHTML = users.map(user => `
+                <tr>
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div style="width: 32px; height: 32px; background: var(--admin-accent-soft); color: var(--admin-accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 800;">
+                                ${user.fullName.charAt(0).toUpperCase()}
+                            </div>
+                            <div style="font-weight: 600;">${user.fullName}</div>
+                        </div>
+                    </td>
+                    <td style="color: var(--admin-muted);">${user.username}</td>
+                    <td>
+                        <span class="badge ${(user.role === 'Pemilik' || user.role === 'Super Admin') ? 'badge-published' : 'badge-draft'}">
+                            ${(user.role === 'Pemilik' || user.role === 'Super Admin') ? 'PEMILIK' : 'PENULIS'}
+                        </span>
+                    </td>
+                    <td style="text-align: right;">
+                        <button class="btn-action" onclick="editUser('${user.id}')">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4L18.5 2.5z"></path></svg>
+                        </button>
+                        ${user.id !== 'u1' ? `
+                        <button class="btn-action" onclick="deleteUser('${user.id}')" style="color: var(--admin-danger);">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                        </button>` : ''}
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function openUserForm(id = null) {
+            const modal = document.getElementById('user-modal');
+            const form = document.getElementById('user-form');
+            document.getElementById('user-edit-id').value = id || '';
+            document.getElementById('user-pass-hint').style.display = id ? 'block' : 'none';
+            document.getElementById('user-pass-label').innerText = id ? 'Ganti Kata Sandi' : 'Kata Sandi';
+            
+            form.reset();
+            
+            if (id) {
+                document.getElementById('user-modal-title').innerText = 'Edit Pengguna';
+                Storage.getAdminAuth().then(auth => {
+                    const user = auth.users.find(u => u.id === id);
+                    document.getElementById('user-modal-fullname').value = user.fullName;
+                    document.getElementById('user-modal-username').value = user.username;
+                    document.getElementById('user-modal-role').value = user.role;
+                });
+            } else {
+                document.getElementById('user-modal-title').innerText = 'Tambah Pengguna Baru';
+            }
+            
+            modal.style.display = 'flex';
+        }
+
+        function closeUserForm() {
+            document.getElementById('user-modal').style.display = 'none';
+        }
+
+        function editUser(id) {
+            openUserForm(id);
+        }
+
+        document.getElementById('user-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('user-edit-id').value || 'u_' + Date.now();
+            const fullName = document.getElementById('user-modal-fullname').value;
+            const username = document.getElementById('user-modal-username').value;
+            const role = document.getElementById('user-modal-role').value;
+            const password = document.getElementById('user-modal-password').value;
+
+            const authData = await Storage.getAdminAuth();
+            const users = authData.users;
+            const index = users.findIndex(u => u.id === id);
+
+            let newUser = { id, fullName, username, role };
+            
+            if (index > -1) {
+                newUser.passwordHash = users[index].passwordHash; // Keep old hash if no new pass
+                if (password) {
+                    const msgUint8 = new TextEncoder().encode(password);
+                    const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
+                    const hashArray = Array.from(new Uint8Array(hashBuffer));
+                    newUser.passwordHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+                }
+                users[index] = newUser;
+            } else {
+                if (!password) {
+                    alert('Kata sandi wajib diisi untuk akun baru!');
+                    return;
+                }
+                const msgUint8 = new TextEncoder().encode(password);
+                const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
+                const hashArray = Array.from(new Uint8Array(hashBuffer));
+                newUser.passwordHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+                users.push(newUser);
+            }
+
+            await Storage.saveAdminAuth({ users: users });
+            closeUserForm();
+            renderUsersTable();
+        };
+
+        async function deleteUser(id) {
+            if (confirm('Hapus akun ini?')) {
+                const authData = await Storage.getAdminAuth();
+                authData.users = authData.users.filter(u => u.id !== id);
+                await Storage.saveAdminAuth(authData);
+                renderUsersTable();
+            }
+        }
+
+        // RBAC & Access Control
+        function checkAccess() {
+            const user = Storage.getCurrentUser();
+            if (!user) return;
+
+            if (user.role !== 'Pemilik' && user.role !== 'Super Admin') {
+                // Hide super admin menus
+                document.getElementById('nav-works').parentElement.style.display = 'none';
+                document.getElementById('nav-branding').parentElement.style.display = 'none';
+                document.getElementById('nav-tentang').parentElement.style.display = 'none';
+                document.getElementById('nav-settings').parentElement.style.display = 'none';
+                document.querySelectorAll('.super-admin-only').forEach(el => el.style.display = 'none');
+                
+                // Remove the "Sistem Desain" separator
+                const separators = document.querySelectorAll('.sidebar-nav li[style*="opacity: 0.5"]');
+                separators.forEach(s => {
+                    if (s.innerText.includes('SISTEM DESAIN')) s.style.display = 'none';
+                });
+
+                // Default to articles if on forbidden tab
+                if (currentTab !== 'articles') {
+                    switchTab('articles');
+                }
+            }
+            updateSidebarUserInfo();
+        }
+
+        function updateSidebarUserInfo() {
+            const user = Storage.getCurrentUser();
+            if (user) {
+                document.getElementById('user-fullname').innerText = user.fullName || user.username;
+                document.getElementById('user-role').innerText = user.role;
+                document.getElementById('user-avatar').innerText = (user.fullName || user.username).charAt(0).toUpperCase();
+            }
+        }
+
+        function logout() {
+            Storage.logout();
+            window.location.href = 'index.html';
+        }
+
+        // Initialize
+        initQuill();
+        loadSettings();
+        checkAccess();
+        
+        // Start on articles if not super admin
+        const startUser = Storage.getCurrentUser();
+        if (startUser && startUser.role !== 'Pemilik' && startUser.role !== 'Super Admin') {
+            switchTab('articles');
+        } else {
+            switchTab('works');
+        }
+    </script>
+</body>
+</html>
