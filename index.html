@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="meta-title">dedeseptian | Praktisi Digital Learning & Knowledge Management</title>
+    <meta name="description" id="meta-desc"
+        content="Portofolio personal Dede Septian, praktisi Digital Learning dan Knowledge Management dengan fokus pada solusi yang bersih dan elegan.">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="assets/css/main.css">
+
+    <!-- GSAP for Animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/TextPlugin.min.js"></script>
+    <!-- Lenis for smooth scroll -->
+    <script src="https://unpkg.com/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
+</head>
+
+<body>
+    <div id="scroll-progress-container">
+        <div id="scroll-progress-bar"></div>
+    </div>
+    <nav id="navbar">
+        <div class="container">
+            <a href="#" class="logo" id="brand-logo-text">
+                <span class="logo-dot"></span>
+                <span class="logo-text">dedeseptian<span class="gradient-text">.</span></span>
+            </a>
+            <!-- Desktop Nav -->
+            <ul class="nav-links desktop-only">
+                <li><a href="#hero">Beranda</a></li>
+                <li><a href="#works">Karya</a></li>
+                <li><a href="#articles">Artikel</a></li>
+                <li><a href="#collab">Kolaborasi</a></li>
+                <li><a href="javascript:void(0)" onclick="openProfile()">Tentang</a></li>
+                <li><a href="admin/index.html" class="admin-link-minimal" title="Admin Access">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lock-icon">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4" class="lock-shackle"></path>
+                        </svg>
+                    </a></li>
+            </ul>
+            <div class="burger">
+                <div class="line1"></div>
+                <div class="line2"></div>
+                <div class="line3"></div>
+            </div>
+        </div>
+    </nav>
+    <div class="nav-overlay"></div>
+    <!-- Mobile Nav Card -->
+    <div class="mobile-nav-card" id="mobile-nav">
+        <div class="close-mobile-nav">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </div>
+        <ul class="mobile-nav-links">
+            <li><a href="#hero">Beranda</a></li>
+            <li><a href="#works">Karya</a></li>
+            <li><a href="#articles">Artikel</a></li>
+            <li><a href="#collab">Kolaborasi</a></li>
+            <li><a href="javascript:void(0)" onclick="openProfile()">Tentang</a></li>
+            <li><a href="admin/index.html" style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+                Admin <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+            </a></li>
+        </ul>
+    </div>
+
+    <main>
+        <!-- Hero Section -->
+        <section id="hero" class="hero">
+            <canvas id="hero-canvas"
+                style="position:absolute; top:0; left:0; width:100%; height:100%; z-index:0; pointer-events:none;"></canvas>
+            <div class="container" style="position:relative; z-index:1;">
+                <div class="hero-content">
+                    <span class="badge reveal" id="hero-subtitle">Praktisi EduTech</span>
+                    <h1 class="reveal" id="hero-title">Meningkatkan <br>Pembelajaran Melalui <br><span class="gradient-text">Inovasi Digital.</span></h1>
+                    <p class="reveal" id="hero-text">Praktisi Digital Learning dan Knowledge Management yang berkomitmen
+                        membangun
+                        ekosistem pembelajaran untuk jangka panjang.</p>
+                    <div class="hero-btns reveal">
+                        <a href="#works" class="btn btn-primary"><span class="btn-text">Lihat Karya Saya</span></a>
+                    </div>
+                </div>
+                <div class="hero-image reveal">
+                    <img src="assets/images/hero_digital_learning.png" alt="Digital Learning Innovation">
+                </div>
+            </div>
+            <div class="scroll-indicator reveal">
+                <span class="scroll-text">Scroll</span>
+                <div class="scroll-line"></div>
+            </div>
+        </section>
+
+        <section id="works">
+            <div class="container">
+                <div class="section-header-flex reveal">
+                    <h2>Etalase Inovasi.</h2>
+                </div>
+                <div class="works-slider-container">
+                    <div class="grid works-grid-slider" id="works-grid">
+                        <!-- Dynamic Works Content -->
+                    </div>
+                </div>
+                <div class="slider-controls">
+                    <button class="slider-nav-btn" id="prev-work" aria-label="Previous">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="15 18 9 12 15 6"></polyline>
+                        </svg>
+                    </button>
+                    <button class="slider-nav-btn" id="next-work" aria-label="Next">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="9 6 15 12 9 18"></polyline>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Articles Section -->
+        <section id="articles" style="background: #F8F9FA;">
+            <div class="container">
+                <div class="section-header-flex reveal">
+                    <h2>Artikel Terbaru.</h2>
+                    <a href="#" class="btn-pill-outline">Jelajahi Artikel</a>
+                </div>
+                <div class="articles-slider-container">
+                    <div class="grid articles-grid-slider" id="articles-grid">
+                        <!-- Dynamic Articles Content -->
+                    </div>
+                </div>
+                <div class="slider-controls">
+                    <button class="slider-nav-btn" id="prev-article" aria-label="Previous">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="15 18 9 12 15 6"></polyline>
+                        </svg>
+                    </button>
+                    <button class="slider-nav-btn" id="next-article" aria-label="Next">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="9 6 15 12 9 18"></polyline>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <section id="collab" class="cta-section reveal">
+            <div class="cta-spotlight" id="cta-spotlight"></div>
+            <div class="container">
+                <div class="cta-content">
+                    <h2 id="cta-title">Siap Membangun <span class="gradient-text">Masa Depan</span> Bersama?</h2>
+                    <p id="cta-text">
+                        Saya siap membantu Anda mengelola aset pengetahuan organisasi dan merancang solusi digital
+                        learning dengan cara yang efektif serta mudah diaplikasikan..
+                    </p>
+                    <div class="cta-buttons">
+                        <a href="https://linkedin.com/in/dedeseptian" class="btn btn-primary" target="_blank"><span
+                                class="btn-text">Hubungi via LinkedIn</span></a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal for Content Details -->
+    <div id="content-modal" class="modal" data-lenis-prevent>
+        <div class="modal-content" data-lenis-prevent>
+            <div class="close-modal">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="white" stroke-width="2" stroke-linecap="round">
+                    <line x1="3" y1="3" x2="13" y2="13"></line>
+                    <line x1="13" y1="3" x2="3" y2="13"></line>
+                </svg>
+            </div>
+            <div id="modal-body">
+                <!-- Modal content injected here -->
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container"
+            style="padding: 4rem 0; border-top: 1px solid var(--border-color); display: flex; justify-content: center; align-items: center;">
+            <p style="color: var(--text-muted); font-size: 0.9rem;">&copy; 2026 dedeseptian.
+            </p>
+        </div>
+    </footer>
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore-compat.js"></script>
+    <script src="assets/js/firebase-config.js"></script>
+
+    <!-- Scripts -->
+    <script src="assets/js/storage.js"></script>
+    <script src="assets/js/app.js"></script>
+</body>
+
+</html>
