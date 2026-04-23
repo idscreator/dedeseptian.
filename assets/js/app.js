@@ -355,18 +355,22 @@ async function openProfile() {
                     <div class="profile-grid">
                         <!-- Block 2: Sidebar (Contact & Skills) -->
                         <div class="profile-sidebar">
+                            <!-- Block: Skills -->
+                            <div style="margin-bottom: 2.5rem;">
+                                <span class="modal-author-label" style="display:block; margin-bottom: 0.8rem;">Keahlian</span>
+                                <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                                    ${skillsHtml}
+                                </div>
+                            </div>
+
+                            <!-- Block: Contact -->
                             <div style="margin-bottom: 2.5rem;">
                                 <span class="modal-author-label" style="display:block; margin-bottom: 0.8rem;">Kontak</span>
                                 <div class="social-icon-row" style="margin-top:0;">
                                     <a href="${profile.socials?.linkedin || '#'}" class="social-icon" target="_blank"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg></a>
                                     <a href="mailto:${profile.socials?.email || ''}" class="social-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg></a>
-                                </div>
-                            </div>
-                            
-                            <div style="margin-bottom: 2.5rem;">
-                                <span class="modal-author-label" style="display:block; margin-bottom: 0.8rem;">Keahlian</span>
-                                <div style="display: flex; flex-wrap: wrap; gap: 8px;">
-                                    ${skillsHtml}
+                                    ${profile.socials?.instagram ? `<a href="${profile.socials.instagram}" class="social-icon" target="_blank"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg></a>` : ''}
+                                    ${profile.socials?.tiktok ? `<a href="${profile.socials.tiktok}" class="social-icon" target="_blank"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"></path></svg></a>` : ''}
                                 </div>
                             </div>
                         </div>
@@ -662,3 +666,36 @@ function setupWorksSlider() {
         grid.scrollBy({ left: grid.offsetWidth, behavior: 'smooth' });
     });
 }
+
+// --- Mobile Nav Logic ---
+function initMobileNav() {
+    const burger = document.querySelector('.burger');
+    const mobileNav = document.getElementById('mobile-nav');
+    const closeBtn = document.querySelector('.close-mobile-nav');
+    const overlay = document.querySelector('.nav-overlay');
+    const navLinks = document.querySelectorAll('.mobile-nav-links li');
+
+    if (burger && mobileNav && overlay) {
+        burger.addEventListener('click', () => {
+            mobileNav.classList.add('active');
+            overlay.classList.add('active');
+            document.body.classList.add('nav-open');
+        });
+
+        const closeMenu = () => {
+            mobileNav.classList.remove('active');
+            overlay.classList.remove('active');
+            document.body.classList.remove('nav-open');
+        };
+
+        closeBtn.addEventListener('click', closeMenu);
+        overlay.addEventListener('click', closeMenu);
+
+        navLinks.forEach(link => {
+            link.addEventListener('click', closeMenu);
+        });
+    }
+}
+
+// Initialize Mobile Nav
+initMobileNav();
